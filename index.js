@@ -3,7 +3,9 @@ const app = express();
 //SOCKET
 const server = require("http").Server(app);
 // change origins if I want to put Social Network online
-const io = require("socket.io")(server, { origins: "localhost:8080" });
+const io = require("socket.io")(server, {
+    origins: "localhost:8080",
+});
 
 const compression = require("compression");
 const bodyParser = require("body-parser");
@@ -15,42 +17,42 @@ const path = require("path");
 const uidSafe = require("uid-safe");
 const csurf = require("csurf");
 const bcrypt = require("./bcrypt.js");
-const s3 = require("./s3");
-const config = require("./config");
+// const s3 = require("./s3");
+// const config = require("./config");
 
 app.use(compression());
 const diskStorage = multer.diskStorage({
-    destination: function(req, file, callback) {
+    destination: function (req, file, callback) {
         callback(null, __dirname + "/uploads");
     },
-    filename: function(req, file, callback) {
-        uidSafe(24).then(function(uid) {
+    filename: function (req, file, callback) {
+        uidSafe(24).then(function (uid) {
             callback(null, uid + path.extname(file.originalname));
         });
-    }
+    },
 });
 
 const uploader = multer({
     storage: diskStorage,
     limits: {
-        fileSize: 2097152
-    }
+        fileSize: 2097152,
+    },
 });
 
 app.use(bodyParser.json());
 const cookieSessionMiddleware = cookieSession({
     secret: `I'm always angry.`,
-    maxAge: 1000 * 60 * 60 * 24 * 90
+    maxAge: 1000 * 60 * 60 * 24 * 90,
 });
 
 app.use(cookieSessionMiddleware);
-io.use(function(socket, next) {
+io.use(function (socket, next) {
     cookieSessionMiddleware(socket.request, socket.request.res, next);
 });
 
 app.use(express.static("./public"));
 app.use(csurf());
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.cookie("mytoken", req.csrfToken());
     next();
 });
@@ -59,7 +61,7 @@ if (process.env.NODE_ENV != "production") {
     app.use(
         "/bundle.js",
         require("http-proxy-middleware")({
-            target: "http://localhost:8081/"
+            target: "http://localhost:8081/",
         })
     );
 } else {
@@ -69,7 +71,7 @@ if (process.env.NODE_ENV != "production") {
 // ROUTES    ######################################################
 
 //WELCOME REGISTER
-app.post("/welcome/register", function(req, res) {
+app.post("/welcome/register", function (req, res) {
     if (
         !req.body.first ||
         !req.body.last ||
@@ -77,12 +79,12 @@ app.post("/welcome/register", function(req, res) {
         !req.body.password
     ) {
         res.json({
-            success: false
+            success: false,
         });
     } else {
         bcrypt
             .hash(req.body.password)
-            .then(hashedPass => {
+            .then((hashedPass) => {
                 return db.registerUser(
                     req.body.first,
                     req.body.last,
@@ -90,48 +92,46 @@ app.post("/welcome/register", function(req, res) {
                     hashedPass
                 );
             })
-            .then(dbData => {
+            .then((dbData) => {
                 // console.log("User has been added to Database");
                 req.session.userId = dbData.rows[0].id;
-                req.session.name = `${dbData.rows[0].first} ${
-                    dbData.rows[0].last
-                }`;
+                req.session.name = `${dbData.rows[0].first} ${dbData.rows[0].last}`;
                 res.json({
-                    success: true
+                    success: true,
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 console.log(err.message);
             });
     }
 });
 
 //WELCOME LOGIN
-app.post("/welcome/login", function(req, res) {
+app.post("/welcome/login", function (req, res) {
     const email = req.body.email;
 
-    db.getUserByEmail(email).then(dbData => {
+    db.getUserByEmail(email).then((dbData) => {
         req.session = {
             userId: dbData.rows[0].id,
             first: dbData.rows[0].first,
-            last: dbData.rows[0].last
+            last: dbData.rows[0].last,
         };
         // CHECK PASSWORD
         return bcrypt
             .comparePassword(req.body.password, dbData.rows[0].hashedpass)
-            .then(bool => {
+            .then((bool) => {
                 if (bool) {
                     res.json({
-                        success: true
+                        success: true,
                     });
                 } else {
                     req.session = null;
                     res.json({
-                        success: false
+                        success: false,
                     });
                 }
             })
-            .catch(err => {
+            .catch((err) => {
                 console.log(err.message);
             });
     });
@@ -141,24 +141,26 @@ app.post("/welcome/login", function(req, res) {
 app.get("/user", (req, res) => {
     const id = req.session.userId;
     db.getUserInfo(id)
-        .then(dbData => {
+        .then((dbData) => {
             res.json(dbData.rows);
         })
-        .catch(err => {
+        .catch((err) => {
             console.log(err.message);
         });
 });
 
 // ADD PROFILE PIC
-app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
-    const fullUrl = config.s3Url + req.file.filename;
+app.post("/upload", uploader.single("file"), (req, res) => {
+    // const fullUrl = config.s3Url + req.file.filename;
+    console.log("Req Body Upload: ", req.body);
+    const fullUrl = req.body.imageUrl;
     const userId = req.session.userId;
 
     db.addProfilePic(fullUrl, userId)
         .then(({ rows }) => {
             res.json(rows[0]);
         })
-        .catch(err => {
+        .catch((err) => {
             console.log(err.message);
         });
 });
@@ -168,11 +170,11 @@ app.get("/userbio", (req, res) => {
     const id = req.session.userId;
 
     db.getUserBio(id)
-        .then(dbData => {
+        .then((dbData) => {
             const savedBio = dbData.rows[0].bio;
             res.json(savedBio);
         })
-        .catch(err => {
+        .catch((err) => {
             console.log(err.message);
         });
 });
@@ -183,11 +185,11 @@ app.post("/userbio", (req, res) => {
     const id = req.session.userId;
 
     db.addUserBio(bio, id)
-        .then(dbData => {
+        .then((dbData) => {
             const updatedBio = dbData.rows[0].bio;
             res.json(updatedBio);
         })
-        .catch(err => {
+        .catch((err) => {
             console.log(err.message);
         });
 });
@@ -199,18 +201,18 @@ app.get("/user/:id/info", (req, res) => {
 
     if (userId == targetId) {
         return res.json({
-            redirectTo: "/"
+            redirectTo: "/",
         });
     }
     db.getOtherUserInfo(targetId)
-        .then(dbData => {
+        .then((dbData) => {
             const OtherUserInfo = dbData.rows[0];
             res.json(OtherUserInfo);
         })
-        .catch(err => {
+        .catch((err) => {
             console.log(err.message);
             res.json({
-                redirectTo: "/"
+                redirectTo: "/",
             });
         });
 });
@@ -221,34 +223,34 @@ app.get("/get-initial-status/:id", (req, res) => {
     const otherUserId = req.params.id;
 
     db.getFriendshipStatus(loggedInUserId, otherUserId)
-        .then(dbData => {
+        .then((dbData) => {
             // No Request sent yet
             if (!dbData.rows[0]) {
                 res.json({
-                    buttonText: "Add"
+                    buttonText: "Add",
                 });
                 return;
             }
             // Friend Request Accepted
             if (dbData.rows[0].accepted == true) {
                 res.json({
-                    buttonText: "Unfriend"
+                    buttonText: "Unfriend",
                 });
             }
             // Friend Request sent , but not accepted yet
             if (dbData.rows[0].accepted == false) {
                 if (loggedInUserId == dbData.rows[0].sender_id) {
                     res.json({
-                        buttonText: "Cancel"
+                        buttonText: "Cancel",
                     });
                 } else if (loggedInUserId == dbData.rows[0].receiver_id) {
                     res.json({
-                        buttonText: "Accept"
+                        buttonText: "Accept",
                     });
                 }
             }
         })
-        .catch(err => {
+        .catch((err) => {
             console.log(err.message);
         });
 });
@@ -266,9 +268,9 @@ app.post("/cancel-friend-request/:id", (req, res) => {
     const loggedInUserId = req.session.userId;
     const otherUserId = req.params.id;
 
-    db.endFriendship(loggedInUserId, otherUserId).then(data => {
+    db.endFriendship(loggedInUserId, otherUserId).then((data) => {
         res.json({
-            success: true
+            success: true,
         });
     });
 });
@@ -278,9 +280,9 @@ app.post("/accept-friend-request/:id", (req, res) => {
     const loggedInUserId = req.session.userId;
     const otherUserId = req.params.id;
 
-    db.acceptFriendship(loggedInUserId, otherUserId).then(data => {
+    db.acceptFriendship(loggedInUserId, otherUserId).then((data) => {
         res.json({
-            success: true
+            success: true,
         });
     });
 });
@@ -289,9 +291,9 @@ app.post("/accept-friend-request/:id", (req, res) => {
 app.get("/friends-and-wannabes", (req, res) => {
     const userId = req.session.userId;
 
-    db.getFriendsAndWannabes(userId).then(dbData => {
+    db.getFriendsAndWannabes(userId).then((dbData) => {
         res.json({
-            friends: dbData.rows
+            friends: dbData.rows,
         });
     });
 });
@@ -300,10 +302,10 @@ app.get("/friends-and-wannabes", (req, res) => {
 app.get("/allmembers", (req, res) => {
     const userId = req.session.userId;
 
-    db.getAllUsers().then(dbData => {
-        filteredList = dbData.rows.filter(member => member.id != userId);
+    db.getAllUsers().then((dbData) => {
+        filteredList = dbData.rows.filter((member) => member.id != userId);
         res.json({
-            allUsers: filteredList
+            allUsers: filteredList,
         });
     });
 });
@@ -316,7 +318,7 @@ app.get("/logout", (req, res) => {
 
 // 2 BELOW SHOULD COME LAST
 
-app.get("/welcome", function(req, res) {
+app.get("/welcome", function (req, res) {
     if (req.session.userId) {
         res.redirect("/");
     } else {
@@ -324,7 +326,7 @@ app.get("/welcome", function(req, res) {
     }
 });
 
-app.get("*", function(req, res) {
+app.get("*", function (req, res) {
     if (!req.session.userId) {
         res.redirect("/welcome");
     } else {
@@ -333,7 +335,7 @@ app.get("*", function(req, res) {
 });
 
 //SERVER (with socket.io)
-server.listen(process.env.PORT || 8080, function() {
+server.listen(process.env.PORT || 8080, function () {
     console.log("Yo, I'm listening on Port 8080!");
 });
 // --------------------------------/ socket.io CODE / --------------------------------
@@ -341,7 +343,7 @@ server.listen(process.env.PORT || 8080, function() {
 //tracks whos CURRENTLY ONLINE
 let onlineUsers = {};
 
-io.on("connection", function(socket) {
+io.on("connection", function (socket) {
     if (!socket.request.session || !socket.request.session.userId) {
         return socket.disconnect(true);
     }
@@ -357,61 +359,61 @@ io.on("connection", function(socket) {
     // -------------------------- / SOCKET EVENTS / ------------------------------------------
 
     db.getUsersByIds(userIds)
-        .then(dbData => {
+        .then((dbData) => {
             filteredRows = dbData.rows.filter(
-                singleObject => singleObject.id != userId
+                (singleObject) => singleObject.id != userId
             );
 
             socket.emit("onlineUsers", filteredRows);
         })
-        .catch(err => {
+        .catch((err) => {
             console.log(err.message);
         });
 
     //USER JOINS
-    if (userIds.filter(id => id == userId).length == 1) {
+    if (userIds.filter((id) => id == userId).length == 1) {
         db.getJoinedUser(userId)
-            .then(dbData => {
+            .then((dbData) => {
                 socket.broadcast.emit("userJoined", dbData.rows[0]);
             })
-            .catch(err => {
+            .catch((err) => {
                 console.log(err.message);
             });
     }
 
     // USER LEAVES
-    socket.on("disconnect", function() {
+    socket.on("disconnect", function () {
         let userWhoLeft = onlineUsers[socket.id];
         delete onlineUsers[socketId];
         io.sockets.emit("userLeft", {
-            id: userWhoLeft
+            id: userWhoLeft,
         });
     });
 
     // USER CHAT MESSAGES
     db.getMessages()
-        .then(dbData => {
+        .then((dbData) => {
             socket.emit("allMessages", {
-                messages: dbData.rows.reverse()
+                messages: dbData.rows.reverse(),
             });
         })
-        .catch(err => {
+        .catch((err) => {
             console.log(err.message);
         });
 
     // RECEIVES A CHAT MESSAGE FROM A SINGLE CIENT
-    socket.on("singleMessage", function(message) {
+    socket.on("singleMessage", function (message) {
         db.insertMessage(message.message, userId)
-            .then(dbData => {
+            .then((dbData) => {
                 dbData.rows[0].first = message.first;
                 dbData.rows[0].last = message.last;
                 dbData.rows[0].url = message.pic;
                 // console.log("Added ALL to DataROws: ", dbData.rows[0]);
                 io.emit("chatMessage", {
-                    message: dbData.rows[0]
+                    message: dbData.rows[0],
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 console.log(err.message);
             });
     });

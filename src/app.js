@@ -26,7 +26,7 @@ export default class App extends React.Component {
             last: "",
             pictureUrl: "",
             id: "",
-            bio: ""
+            bio: "",
         };
         this.showUploader = this.showUploader.bind(this);
         this.updateProfileUrl = this.updateProfileUrl.bind(this);
@@ -39,11 +39,12 @@ export default class App extends React.Component {
         try {
             const response = await axios.get("/user");
             const { id, first, last, url } = response.data[0];
+            console.log("Response Date: ", response.data);
             this.setState({
                 first,
                 last,
                 pictureUrl: url,
-                id
+                id,
             });
         } catch (err) {
             console.log(err.message);
@@ -54,7 +55,7 @@ export default class App extends React.Component {
             const bio = response.data;
 
             this.setState({
-                bio
+                bio,
             });
         } catch (err) {
             console.log(err.message);
@@ -63,32 +64,32 @@ export default class App extends React.Component {
 
     showUploader() {
         this.setState({
-            uploaderIsVisible: !this.state.uploaderIsVisible
+            uploaderIsVisible: !this.state.uploaderIsVisible,
         });
     }
 
     toggleOnlineUser() {
         this.setState({
-            showOnlineUser: !this.state.showOnlineUser
+            showOnlineUser: !this.state.showOnlineUser,
         });
     }
 
     toggleWall() {
         this.setState({
-            showWall: !this.state.showWall
+            showWall: !this.state.showWall,
         });
     }
 
     updateProfileUrl(url) {
         this.setState({
             pictureUrl: url,
-            uploaderIsVisible: false
+            uploaderIsVisible: false,
         });
     }
 
     updateBio(bio) {
         this.setState({
-            bio
+            bio,
         });
     }
 
@@ -125,14 +126,13 @@ export default class App extends React.Component {
                                 />
                             )}
                         />
-                        <Route path="/user/:id" component={OtherProfile} />
+                        <Route path="/user/:id" component={OtherProfile} />{" "}
                         {this.state.uploaderIsVisible && (
                             <Uploader
                                 updateProfileUrl={this.updateProfileUrl}
                             />
                         )}
                         {this.state.showOnlineUser && <OnlineUsers />}
-
                         <Route
                             exact
                             path="/friends"
@@ -142,7 +142,6 @@ export default class App extends React.Component {
                                 />
                             )}
                         />
-
                         <Route
                             exact
                             path="/chat"
@@ -154,7 +153,6 @@ export default class App extends React.Component {
                                 />
                             )}
                         />
-
                         <Route
                             exact
                             path="/allusers"

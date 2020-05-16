@@ -14,7 +14,6 @@ export default function Welcome() {
                             src="/assets/unicornsss.png"
                             alt="unicorn logo"
                         />
-
                         <div className="landing-image-container">
                             <img
                                 className="logo-image"
