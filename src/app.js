@@ -39,7 +39,7 @@ export default class App extends React.Component {
         try {
             const response = await axios.get("/user");
             const { id, first, last, url } = response.data[0];
-            console.log("Response Date: ", response.data);
+
             this.setState({
                 first,
                 last,
