@@ -7,6 +7,7 @@ const server = require("http").Server(app);
 // const io = require("socket.io")(server, {
 //     origins: "localhost:8080",
 // });
+
 // socket.io live configuration
 const io = require("socket.io").listen(server);
 
