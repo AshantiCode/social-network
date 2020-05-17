@@ -2,7 +2,7 @@ import React from "react";
 import {
     receiveFriendsAndWannabes,
     acceptFriendship,
-    endFriendship
+    endFriendship,
 } from "./actions";
 import OnlineUsers from "./onlineUsers";
 import { connect } from "react-redux";
@@ -20,15 +20,13 @@ class Friends extends React.Component {
         if (!wannabes) {
             return null;
         }
-        // console.log("Wannabelist:", wannabes);
-        // console.log("Wannabelist.length:", wannabes.length);
 
         const wannabeList = (
             <div>
                 <h2>
                     These {wannabes.length} Unicorns want to be your friends:
                 </h2>
-                {wannabes.map(wannabe => (
+                {wannabes.map((wannabe) => (
                     <div key={wannabe.id} className="wannabe-container">
                         <img
                             className="wannabe-img"
@@ -38,7 +36,7 @@ class Friends extends React.Component {
                             {wannabe.first} {wannabe.last}
                         </p>
                         <button
-                            onClick={e =>
+                            onClick={(e) =>
                                 this.props.dispatch(
                                     acceptFriendship(wannabe.id)
                                 )
@@ -56,7 +54,7 @@ class Friends extends React.Component {
             <div>
                 <h2>These {friends.length} Unicorns are Your Friends</h2>
 
-                {friends.map(friend => (
+                {friends.map((friend) => (
                     <div key={friend.id} className="wannabe-container">
                         <img src={friend.url} className="wannabe-img" />
                         <p>
@@ -97,16 +95,15 @@ class Friends extends React.Component {
     }
 }
 
-const mapStateToProps = function(state) {
-    console.log("STATE:", state);
+const mapStateToProps = function (state) {
     return {
         wannabes:
             state.friendslist &&
-            state.friendslist.filter(wannabe => wannabe.accepted == false),
+            state.friendslist.filter((wannabe) => wannabe.accepted == false),
 
         friends:
             state.friendslist &&
-            state.friendslist.filter(friend => friend.accepted == true)
+            state.friendslist.filter((friend) => friend.accepted == true),
     };
 };
 export default connect(mapStateToProps)(Friends);

@@ -5,7 +5,7 @@ export default class FriendButton extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            buttonText: ""
+            buttonText: "",
         };
         this.updateFriendship = this.updateFriendship.bind(this);
     }
@@ -17,7 +17,7 @@ export default class FriendButton extends React.Component {
                 "/get-initial-status/" + this.props.otherUserId
             );
             this.setState({
-                buttonText: response.data.buttonText
+                buttonText: response.data.buttonText,
             });
         } catch (err) {
             console.log(err.message);
@@ -28,31 +28,30 @@ export default class FriendButton extends React.Component {
         if (this.state.buttonText == "Add") {
             axios.post("/send-friend-request/" + this.props.otherUserId);
             this.setState({
-                buttonText: "Cancel"
+                buttonText: "Cancel",
             });
         }
         if (this.state.buttonText == "Cancel") {
             axios.post("/cancel-friend-request/" + this.props.otherUserId);
             this.setState({
-                buttonText: "Add"
+                buttonText: "Add",
             });
         }
         if (this.state.buttonText == "Accept") {
             axios.post("/accept-friend-request/" + this.props.otherUserId);
             this.setState({
-                buttonText: "Unfriend"
+                buttonText: "Unfriend",
             });
         }
         if (this.state.buttonText == "Unfriend") {
             axios.post("/cancel-friend-request/" + this.props.otherUserId);
             this.setState({
-                buttonText: "Add"
+                buttonText: "Add",
             });
         }
     }
 
     render() {
-        // console.log("otherUserId: ", this.props.otherUserId);
         return (
             <button onClick={this.updateFriendship}>
                 {this.state.buttonText}

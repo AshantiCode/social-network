@@ -5,7 +5,7 @@ export default class Wall extends React.Component {
     constructor() {
         super();
         this.state = {
-            users: []
+            users: [],
         };
         this.getUsers = this.getUsers.bind(this);
     }
@@ -19,30 +19,29 @@ export default class Wall extends React.Component {
             // to polllute my wall with content, that it looks like posts
             .get("https://randomuser.me/api/?results=7")
 
-            .then(response =>
-                response.data.results.map(user => ({
+            .then((response) =>
+                response.data.results.map((user) => ({
                     name: `${user.name.first} ${user.name.last}`,
                     username: user.login.username,
                     email: user.email,
-                    image: user.picture.thumbnail
+                    image: user.picture.thumbnail,
                 }))
             )
-            .then(users => {
+            .then((users) => {
                 this.setState({
-                    users
+                    users,
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 console.log(err.message);
             });
     }
 
     render() {
-        // console.log("STATE USERS:", this.state);
         const { users } = this.state;
         return (
             <div className="feeds-container">
-                {users.map(user => {
+                {users.map((user) => {
                     const { username, name, email, image } = user;
                     return (
                         <div key={username} className="comment">

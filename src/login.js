@@ -17,14 +17,13 @@ export default class Login extends React.Component {
         try {
             const response = await axios.post("/welcome/login", {
                 email: this.email,
-                password: this.password
+                password: this.password,
             });
-            // console.log("Response in Login: ", response);
             if (response.data.success) {
                 location.replace("/");
             } else {
                 this.setState({
-                    error: true
+                    error: true,
                 });
             }
         } catch (err) {

@@ -16,7 +16,7 @@ class OnlineUsers extends React.Component {
 
         const listOnlineUsers = (
             <div className="list-online-users">
-                {onlineUsers.map(user => {
+                {onlineUsers.map((user) => {
                     return (
                         <div key={user.id} className="online-user-card">
                             <div className="card-image-container">
@@ -41,7 +41,6 @@ class OnlineUsers extends React.Component {
                 })}
             </div>
         );
-        // console.log("listOnlineUser: ", listOnlineUsers);
         return (
             <div>
                 <div>
@@ -55,10 +54,9 @@ class OnlineUsers extends React.Component {
     }
 }
 
-const mapStateToProps = function(state) {
-    // console.log("state in onlineusers-comp:", state);
+const mapStateToProps = function (state) {
     return {
-        onlineUsers: state.onlineUsers
+        onlineUsers: state.onlineUsers,
     };
 };
 

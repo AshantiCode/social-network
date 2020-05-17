@@ -19,7 +19,7 @@ class Chat extends React.Component {
             message: this.chatBox,
             first: this.props.first,
             last: this.props.last,
-            pic: this.props.url
+            pic: this.props.url,
         });
         //clears the chatbox after submiting message
         document.querySelector(".chat-textarea").value = "";
@@ -40,7 +40,7 @@ class Chat extends React.Component {
         } else {
             var chatList = (
                 <div>
-                    {messages.map(message => (
+                    {messages.map((message) => (
                         <div key={message.id} className="message-container">
                             <img
                                 src={message.url || "/assets/default-img.png"}
@@ -65,7 +65,7 @@ class Chat extends React.Component {
                 <div className="chat-wrapper">
                     <div
                         className="chat-window"
-                        ref={elem => (this.elem = elem)}
+                        ref={(elem) => (this.elem = elem)}
                     >
                         {!!messages.length && chatList}
                     </div>
@@ -87,10 +87,9 @@ class Chat extends React.Component {
     }
 }
 
-const mapStateToProps = function(state) {
-    // console.log("State in Chat:", state);
+const mapStateToProps = function (state) {
     return {
-        messages: state.messages
+        messages: state.messages,
     };
 };
 
