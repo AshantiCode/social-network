@@ -38,7 +38,6 @@ export default class Uploader extends React.Component {
                 formData.append("imageUrl", imageUrl);
 
                 axios.post("/upload", formData).then(function (response) {
-                    console.log("Upload Response: ", response);
                     self.props.updateProfileUrl(response.data.url);
                 });
 
