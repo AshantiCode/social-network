@@ -41,6 +41,10 @@ const uploader = multer({
     },
 });
 
+// app.configure(function () {
+//     app.use("/favicon.ico", express.static(__dirname + "/public"));
+// });
+
 app.use(bodyParser.json());
 const cookieSessionMiddleware = cookieSession({
     secret: `I'm always angry.`,
