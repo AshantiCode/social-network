@@ -4,11 +4,11 @@ const app = express();
 const server = require("http").Server(app);
 
 //for localhost  => change origins if I want to put Social Network online
-const io = require("socket.io")(server, {
-    origins: "localhost:8080",
-});
+// const io = require("socket.io")(server, {
+//     origins: "localhost:8080",
+// });
 // socket.io live configuration
-// const io = require("socket.io").listen(server);
+const io = require("socket.io").listen(server);
 
 const compression = require("compression");
 const bodyParser = require("body-parser");
